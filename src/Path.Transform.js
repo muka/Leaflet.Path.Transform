@@ -435,9 +435,9 @@ L.Handler.PathTransform = L.Handler.extend({
     if (path._point) { // L.Circle
       path._latlng = this._transformPoint(
         path._latlng, projectedMatrix, map, zoom);
-        var box = this._getBoundingPolygon();
-        var radius = Math.abs(path._latlng.lat - box._bounds._northEast.lat);
-        path.setRadius(radius);
+      var box = this._getBoundingPolygon();
+      var radius = Math.floor(Math.abs(box._bounds._southWest.lat - box._bounds._northEast.lat) / 2);
+      path.setRadius(radius);
     } else if (path._rings || path._parts) { // everything else
       var rings = path._rings;
       var latlngs = path._latlngs;
@@ -632,12 +632,8 @@ L.Handler.PathTransform = L.Handler.extend({
       .fire('transformstart', { layer: this._path })
       .fire('scalestart', { layer: this._path, scale: L.point(1, 1) });
 
-    if (this._handleLine) {
-      this._map.removeLayer(this._handleLine);
-    }
-    if (this._rotationMarker) {
-      this._map.removeLayer(this._rotationMarker);
-    }
+    this._map.removeLayer(this._handleLine);
+    this._map.removeLayer(this._rotationMarker);
 
     //this._handleLine = this._rotationMarker = null;
   },
@@ -679,12 +675,8 @@ L.Handler.PathTransform = L.Handler.extend({
       .off('mousemove', this._onScale,    this)
       .off('mouseup',   this._onScaleEnd, this);
 
-    if (this._handleLine) {
-      this._map.addLayer(this._handleLine);
-    }
-    if (this._rotationMarker) {
-      this._map.addLayer(this._rotationMarker);
-    }
+    this._map.addLayer(this._handleLine);
+    this._map.addLayer(this._rotationMarker);
 
     this._apply();
     this._path.fire('scaleend', {
